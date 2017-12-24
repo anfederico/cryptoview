@@ -1,5 +1,6 @@
-# Cryptoview
-*Elegant portfolio management for multi-exchange traders*
+<p align="center"><img src="https://raw.githubusercontent.com/anfederico/cryptoview/master/media/logo.png" width="400px"><p>
+    
+<br>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
