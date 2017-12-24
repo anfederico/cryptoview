@@ -1,0 +1,216 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="author" content="Anthony Federico">
+    <title>cryptoview</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.8/handlebars.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+    <script src="../static/js/stupidtable.min.js"></script>
+    <script src="../static/js/helpers.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.css">
+  </head>
+  
+  <style>
+  body {
+    background-color: #2b2b42;
+  }
+  </style>
+
+  <body>
+  <div class="two ui buttons">
+    <button data-chart="equity-chart" class="ui button charts">Equity Chart</button>
+    <button data-chart="allocations-chart" class="ui button charts">Portfolio Allocations</button>
+  </div>
+  
+  <button id="refresh" class="circular ui icon button" style="position:absolute;left:18;top:50">
+    <i id="refresh-icon" class="icon refresh"></i>
+  </button>
+  <br>
+  <br>
+  <div id="container" style="width:75%;margin:auto">
+    <canvas id="equity-chart" width="300" height="100"></canvas>
+  </div>
+  <div id="container" style="width:75%;margin:auto">
+    <canvas id="allocations-chart" width="300" height="100" style="display:none" ></canvas>
+  </div>
+  <br>
+  <div id="positions"></div>
+  </body>
+</html>
+
+<script>
+$(document).on("click", ".charts", function() {
+  c = $(this).attr('data-chart')
+  e = document.getElementsByClassName("charts");
+  for (var i = 0; i < e.length; i++ ){
+    id = $(e[i]).attr('data-chart')
+    document.getElementById(id).style.display = "none"
+  }
+  document.getElementById(c).style.display = "block"
+})
+</script>
+
+<script>
+var equity  = {{ e|tojson }}
+var dayEquity = Object.keys(equity['btc'])
+var btcEquity = Object.values(equity['btc'])
+var usdEquity = Object.values(equity['usd'])
+new Chart(document.getElementById("equity-chart"), {
+  type: 'line',
+  data: {
+    labels: dayEquity,
+    datasets: [{ 
+        data: btcEquity,
+        label: "BTC",
+        borderColor: "#3e95cd",
+        fill: false,
+        yAxisID: "y-axis-1"
+      }, {
+        data: usdEquity,
+        label: "USD",
+        borderColor: "#c45850",
+        fill: false,
+        yAxisID: "y-axis-0"
+      }
+    ]
+  },
+  options: {
+    legend: {
+      labels: {
+        fontColor: 'white'
+      }
+    },
+    scales: {
+      yAxes: [{
+        position: "left",
+        "id": "y-axis-0",
+      }, {
+        position: "right",
+        "id": "y-axis-1"
+      }]
+    }    
+  }
+});
+
+var allocations = {{ p|tojson }}
+var tokenAllocations = []
+var valueAllocations = []
+for (i = 0; i < allocations.length; i++) { 
+    tokenAllocations.push(allocations[i]['Token'])
+    valueAllocations.push(allocations[i]['Value'])
+}
+
+new Chart(document.getElementById("allocations-chart"), {
+  type: 'doughnut',
+  data: {
+    labels: tokenAllocations,
+    datasets: [{ 
+        labels: tokenAllocations,
+        backgroundColor: colorize(tokenAllocations.length),
+        data: valueAllocations,
+      }
+    ]
+  },
+  options: {
+    legend: {
+      labels: {
+        fontColor: 'white'
+        }
+    }
+  }
+});
+</script>
+
+
+{% raw %}
+<script id="positions-template" type="text/x-handlebars-template">
+  <table id="sortable" class="ui sortable celled large inverted compact table" style="background-color:#2b2b42">
+    <thead>
+      <tr class="center aligned">
+        <th data-sort="string" style="color:#c04560"><p>Ticker</p></th>
+        <th data-sort="float" style="color:#c04560"><p>Balance</p></th>
+        <th data-sort="float" style="color:#c04560"><p>Value</p></th>
+        <th data-sort="float" style="color:#c04560"><p>Allocation</p></th>
+        <th data-sort="float" style="color:#c04560"><p>Daily</p></th>
+        <th data-sort="float" style="color:#c04560"><p>Weekly</p></th>
+        <th style="color:#c04560"><p>Exchanges</p></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#positions}}
+        <tr class="center aligned">
+          <td><strong><p>{{Token}}</p></strong></td>
+          <td><i><p>{{Balance}}</p></i></td>
+          <td><p>{{Value}}</p></td>
+          <td><p>{{Allocation}}%</p></td>
+          <td><p>{{Daily}}%</p></td>
+          <td><p>{{Weekly}}%</p></td>
+          <td><p>{{Exchanges}}</p></td>
+        </tr>
+      {{/positions}}
+    </tbody>
+  </table>
+</script>
+{% endraw %}
+
+<script>
+var source = $("#positions-template").html()
+var template = Handlebars.compile(source)
+var positions  = {'positions': {{ p|tojson }}}
+$('#positions').html(template(positions))
+$("#sortable").stupidtable()
+</script>
+
+<script>
+$(document).on("click", "#refresh", function() {
+  document.getElementById("refresh-icon").classList.add('loading')
+  $.post({
+    type: "POST",
+    url: "/refresh",
+    data: {},
+    success: function(response){
+      var success = JSON.parse(response)['success']
+      var positions = JSON.parse(response)['positions']
+      if (success) {
+        $('#positions').html(template({'positions': positions}))
+        $("#sortable").stupidtable()
+        //refreshAllocations(positions)
+        document.getElementById("refresh-icon").classList.remove('loading')
+      }
+    }
+  })
+})
+</script>
+
+<script>
+var allocations = []
+var tokens = []
+function refreshAllocations(p) {
+  var allocations = []
+  var tokens = []
+  for (var i = 0; i < p.length; ++i) {
+    allocations.push(p[i]['Allocation'])
+    tokens.push(p[i]['Token'])
+    if (i == p.length) {
+      chartAllocations.update_values([{values: allocations}], tokens);
+    }
+  }
+  let dataAllocations = {
+    labels: tokens,
+    datasets: [
+      {
+        title: "Allocations",
+        values: allocations
+      }
+    ]
+  };
+  let chartAllocations = new Chart({
+    parent: "#allocations",
+    data: dataAllocations,
+    type: 'percentage'
+  });
+}
+//refreshAllocations({{ p|tojson }})
+</script>
