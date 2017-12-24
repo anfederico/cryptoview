@@ -16,7 +16,7 @@ class Bittrex_Init:
         method_set = 'account'
         request_url = ('https://bittrex.com/api/v1.1/%s/' % method_set) + command + '?'
         request_url += 'apikey=' + self.api_key + "&nonce=" + nonce + '&'
-        request_url += urllib.urlencode(args)
+        request_url += urllib.parse.urlencode(args)
         apisign = hmac.new(self.api_secret.encode(), request_url.encode(), hashlib.sha512).hexdigest()
         return requests.get(request_url, headers={"apisign": apisign}).json()
 
@@ -61,7 +61,7 @@ class Poloniex_Init:
         args['command'] = command
         args['nonce'] = self.nonce
         try:
-            data = urllib.urlencode(args)
+            data = urllib.parse.urlencode(args)
             sign = hmac.new(self.secret.encode('utf-8'), data.encode('utf-8'), hashlib.sha512)
             response = requests.post('https://poloniex.com/tradingApi', data=args,
                                       headers={'Sign': sign.hexdigest(), 'Key': self.key},
