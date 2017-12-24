@@ -1,0 +1,7 @@
+Flask
+gunicorn
+pymongo
+pandas
+requests
+datetime
+schedule
