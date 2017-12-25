@@ -28,6 +28,14 @@ Cryptoview can be run locally however it is written to be forked and deployed on
     └── settings.py
 ```
 
+## Run it local or on Heroku 
+To run it locally, just start up the web application and updater files. The updaters script is what is tracking the account equity and updating the mongo database.
+```
+python app.py
+python updaters.py
+```
+The reason it runs separately is to keep web hosting free, if you decide to host it on Heroku. By handling the background tasks locally, you can run app.py in sandbox mode on Heroku and handle the updaters file on your local computer. Since mlab is an online database, both Heroku and your local computer can communicate through it. I prefer this method because I can access my portfolio from anywhere online without paying for extra Heroku dynos. All you have to do is fork the repository, deploy from it through Heroku, and then once it is deployed, run updaters.py on your local computer.
+
 ## Contributions
 Please [create an issue](https://github.com/anfederico/cryptoview/issues/new) for any ideas/comments/features you'd like to see or implement yourself!
 
