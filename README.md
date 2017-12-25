@@ -13,7 +13,7 @@
 <p align="center"><img src="https://raw.githubusercontent.com/anfederico/cryptoview/master/media/example.png" width="70%"><p>
 
 ## Briefly
-Cryptoview can be run locally however it is written to be forked and deployed on a free Heroku account. The only thing you need to do is setup a free online database through mlab, edit a settings file, and deploy straight from Github. I've tried to make these steps as easy as possible.
+Cryptoview is written to be forked and deployed on a free Heroku account. There is a web application component which handles updating and visualizing your positions and there is a scheduler component that periodically tracks your equity and stores it in a database. Ideally, you'll deploy the web application on Heroku and then run the scheduler locally. This will keep your Heroku account free since you won't pay for background dynos and allow you to access your portfolio from anywhere. The only thing you need to do is setup a free online database through mlab, edit a settings file, and deploy straight from Github. I've tried to make these steps as easy as possible.
 
 ## Setting up the database
 - Make an account at https://mlab.com
@@ -28,13 +28,17 @@ Cryptoview can be run locally however it is written to be forked and deployed on
     └── settings.py
 ```
 
-## Run it local or on Heroku 
-To run it locally, just start up the web application and updater files. The updaters script is what is tracking the account equity and updating the mongo database.
+## Deploy it
+
+***Heroku***  
+The reason it runs separately is to keep web hosting free, if you decide to host it on Heroku. By handling the background tasks locally, you can run the app in sandbox mode on Heroku and handle the updaters file on your local computer. Fork the repository, create a Heroku sandbox app, and deploy straight from your forked repository.
+
+***Locally***  
+After the app is running on Heroku, start tracking your equity locally by running the following file. This is optional and you can turn it on/off whenever you like, however you'll have missing dates in your equity curve. Since mlab is an online database, both Heroku and your local computer can communicate through it. I prefer this method because I can access my portfolio from anywhere online without paying for extra Heroku dynos.
 ```
-python app.py
-python updaters.py
+/cryptoview
+└── updaters.py
 ```
-The reason it runs separately is to keep web hosting free, if you decide to host it on Heroku. By handling the background tasks locally, you can run app.py in sandbox mode on Heroku and handle the updaters file on your local computer. Since mlab is an online database, both Heroku and your local computer can communicate through it. I prefer this method because I can access my portfolio from anywhere online without paying for extra Heroku dynos. All you have to do is fork the repository, deploy from it through Heroku, and then once it is deployed, run updaters.py on your local computer.
 
 ## Contributions
 Please [create an issue](https://github.com/anfederico/cryptoview/issues/new) for any ideas/comments/features you'd like to see or implement yourself!
