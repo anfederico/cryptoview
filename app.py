@@ -8,20 +8,9 @@ import os
 import time
 
 # Locals
-from scripts import mongio, updaters, workers, settings
+from scripts import mongio, workers, settings
 
 app = Flask(__name__)
-
-# ======== Updaters ========================================================== #
-
-def update_equity():
-    print("Updating equity...")
-    update_equity(settings.mongo_portfolio)
-
-def run_schedule():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 # ======== Routing =========================================================== #
 
@@ -46,8 +35,4 @@ def refresh():
 # ======== Main ============================================================== #
 
 if __name__ == "__main__":
-    schedule.every(15).minutes.do(update_equity)
-    t = threading.Thread(target=run_schedule)
-    t.start()
-
-    app.run(use_reloader=False)
+    app.run()
