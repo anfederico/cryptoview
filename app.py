@@ -1,16 +1,29 @@
 from flask  import Flask, redirect, url_for, render_template, request
 
 import threading
-import schedule
 import signal
 import json
 import os
 import time
 
 # Locals
-from scripts import mongio, workers, settings
+from scripts import mongio, apis, settings
 
 app = Flask(__name__)
+
+# ======== Tasks =========================================================== #
+def refresh_positions(exchanges):
+    E = []
+    for exchange in exchanges:
+        e = getattr(apis, exchange.title())
+        key = getattr(settings, '{0}_key'.format(exchange))
+        secret = getattr(settings, '{0}_secret'.format(exchange))
+        try:
+            passphrase = getattr(settings, '{0}_passphrase'.format(exchange))
+            E.append(e(key, secret, passphrase).get_balances())
+        except AttributeError:
+            E.append(e(key, secret).get_balances())
+    return sum(E).positions()
 
 # ======== Routing =========================================================== #
 
@@ -27,7 +40,7 @@ def index():
 
 @app.route('/refresh', methods=['POST'])
 def refresh():
-    positions = workers.refresh_positions(settings.exchanges)
+    positions = refresh_positions(settings.exchanges)
     mongio.save(settings.mongo_portfolio, 'positions', positions)
     positions = mongio.load(settings.mongo_portfolio, 'positions')
     return json.dumps({'success': True, 'positions': positions})
