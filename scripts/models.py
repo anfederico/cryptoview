@@ -31,12 +31,23 @@ class Exchange:
         new.tokens += [t for t in other.tokens if t not in new.tokens]
         return new
 
+    def __radd__(self, other):
+        if other is int(0):
+            return self
+        else:
+            return self.__add__(other)
+
     def positions(self):
         p = get_performances()
         self.tokens.sort(key=lambda t: t.value, reverse=True)
         total_btc = sum([token.value for token in self.tokens])
         positions = []
         for token in self.tokens:
+
+            # Ignore dust
+            if token.value < 0.001:
+                continue
+
             try:
                 positions.append({'Token'      : token.name, 
                                   'Balance'    : round(token.balance, 2),
@@ -45,10 +56,14 @@ class Exchange:
                                   'Daily'      : p[token.name]['daily'],
                                   'Weekly'     : p[token.name]['weekly'],
                                   'Exchanges'  : "/".join(token.exchanges)})
-            except Exception as e:
-                print(token)
-                print(e)
-
+            except KeyError as e:
+                positions.append({'Token'      : token.name, 
+                                  'Balance'    : round(token.balance, 2),
+                                  'Value'      : round(token.value, 5),
+                                  'Allocation' : round(100*token.value/total_btc, 3),
+                                  'Daily'      : '--',
+                                  'Weekly'     : '--',
+                                  'Exchanges'  : "/".join(token.exchanges)})
         return positions
 
 class Token:
