@@ -11,6 +11,25 @@ import base64
 sys.path.append("..")
 from scripts import models
 
+class Gemini:
+    def __init__(self, api_key, api_secret):
+        self.api_key = api_key
+        self.api_secret = api_secret
+
+    def raw_balances(self):
+        url = "https://api.gemini.com/v1/balances"
+        nonce = int(time.time() * 1000)
+        message = json.dumps({'request': '/v1/balances', 'nonce': nonce})
+        message = base64.b64encode(message.encode('ascii'))
+        signature = hmac.new(api_secret.encode(), message, hashlib.sha384).hexdigest()
+        headers = {'Content-Type': "text/plain",
+                   'Content-Length': "0",
+                   'X-GEMINI-APIKEY': api_key,
+                   'X-GEMINI-PAYLOAD': message,
+                   'X-GEMINI-SIGNATURE': signature,
+                   'Cache-Control': "no-cache"}
+        response = requests.request("POST", url, headers=headers)
+
 class Binance:
     def __init__(self, api_key, api_secret):
         self.api_key = api_key
