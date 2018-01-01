@@ -11,24 +11,43 @@ import base64
 sys.path.append("..")
 from scripts import models
 
+key = 'XtF8ySScnn0mjtLTv1bw'
+secret = '3VozjJ7qcUvTaLbK93CDAdYQDiox'
+
 class Gemini:
     def __init__(self, api_key, api_secret):
         self.api_key = api_key
         self.api_secret = api_secret
 
     def raw_balances(self):
-        url = "https://api.gemini.com/v1/balances"
+        url = "https://api.sandbox.gemini.com/v1/balances"
         nonce = int(time.time() * 1000)
-        message = json.dumps({'request': '/v1/balances', 'nonce': nonce})
-        message = base64.b64encode(message.encode('ascii'))
-        signature = hmac.new(api_secret.encode(), message, hashlib.sha384).hexdigest()
+        message_json = json.dumps({"request": "/v1/balances", "nonce": nonce})
+        message = base64.b64encode(message_json.encode())
+        signature = hmac.new(self.api_secret.encode(), message, hashlib.sha384).hexdigest()
         headers = {'Content-Type': "text/plain",
                    'Content-Length': "0",
-                   'X-GEMINI-APIKEY': api_key,
+                   'X-GEMINI-APIKEY': self.api_key,
                    'X-GEMINI-PAYLOAD': message,
                    'X-GEMINI-SIGNATURE': signature,
                    'Cache-Control': "no-cache"}
         response = requests.request("POST", url, headers=headers)
+        return response.json()
+
+    def get_balances(self):
+        E = models.Exchange('Gemini')
+        raw = self.raw_balances()
+        for t in raw:
+            balance = float(t['available'])
+            if balance > 0:
+                ticker = t['currency'] + 'usd'
+                try:
+                    price = requests.get('https://api.gemini.com/v1/pubticker/{0}'.format(ticker)).json()['last']
+                    E.tokens.append(models.Token(ticker, balance, 'Gemini', price=price))
+                except KeyError:
+                    E.tokens.append(models.Token(ticker, balance, 'Gemini'))
+        return E
+
 
 class Binance:
     def __init__(self, api_key, api_secret):
