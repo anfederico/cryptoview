@@ -11,8 +11,6 @@ import base64
 sys.path.append("..")
 from scripts import models
 
-key = 'XtF8ySScnn0mjtLTv1bw'
-secret = '3VozjJ7qcUvTaLbK93CDAdYQDiox'
 
 class Gemini:
     def __init__(self, api_key, api_secret):
@@ -20,7 +18,7 @@ class Gemini:
         self.api_secret = api_secret
 
     def raw_balances(self):
-        url = "https://api.sandbox.gemini.com/v1/balances"
+        url = "https://api.gemini.com/v1/balances"
         nonce = int(time.time() * 1000)
         message_json = json.dumps({"request": "/v1/balances", "nonce": nonce})
         message = base64.b64encode(message_json.encode())
