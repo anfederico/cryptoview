@@ -159,7 +159,7 @@ class Gdax:
         return response.json()
 
     def get_balances(self):
-        E = models.Exchange('Poloniex')
+        E = models.Exchange('Gdax')
         raw = self.raw_balances()
         for t in raw:
             balance = float(t['available'])
