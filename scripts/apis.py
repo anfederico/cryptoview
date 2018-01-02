@@ -38,9 +38,9 @@ class Gemini:
         for t in raw:
             balance = float(t['available'])
             if balance > 0:
-                ticker = t['currency'] + 'usd'
+                ticker = t['currency']
                 try:
-                    price = requests.get('https://api.gemini.com/v1/pubticker/{0}'.format(ticker)).json()['last']
+                    price = requests.get('https://api.gemini.com/v1/pubticker/{0}'.format(ticker + 'btc')).json()['last']
                     E.tokens.append(models.Token(ticker, balance, 'Gemini', price=price))
                 except KeyError:
                     E.tokens.append(models.Token(ticker, balance, 'Gemini'))
