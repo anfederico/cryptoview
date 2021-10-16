@@ -10,8 +10,6 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-<p align="center"><img src="https://raw.githubusercontent.com/anfederico/cryptoview/master/media/example.png" width="70%"><p>
-
 ## Briefly
 Cryptoview is written to be forked and deployed on a free Heroku account. There is a web application component which handles updating and visualizing your positions and there is a scheduler component that periodically tracks your equity and stores it in a database. Ideally, you'll deploy the web application on Heroku and then run the scheduler locally. This will keep your Heroku account free since you won't pay for background dynos and allow you to access your portfolio from anywhere. The only thing you need to do is setup a free online database through mlab, edit a settings file, and deploy straight from Github. I've tried to make these steps as easy as possible.
 
