@@ -40,8 +40,3 @@ After the app is running on Heroku, start tracking your equity locally by runnin
 
 ## Contributions
 Please [create an issue](https://github.com/anfederico/cryptoview/issues/new) for any ideas/comments/features you'd like to see or implement yourself!
-
-## Tips
-![BTC](https://img.shields.io/badge/BTC-14hBuV5SgfeMQN5ejV7S3Gocaajbg5B5Rx-yellow.svg)<br>
-![ETH](https://img.shields.io/badge/ETH-0x72D7358F875C55441BbEF3b3984cbf3AE5F34F2a-brightgreen.svg)<br>
-![LTC](https://img.shields.io/badge/LTC-LhEx3SGL6gmBPAteSwZdwKaNDTvU3mGQDz-lightgrey.svg)
